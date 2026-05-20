@@ -1,0 +1,53 @@
+# BTCUSDT 1h v3 research configuration.
+#
+# This is the first intended v3 validation target. It preserves v2 lessons
+# while keeping the v3 architecture long-term-primary and risk-controlled.
+
+version: v3.btc_1h
+inherits: configs/v3_default.yaml
+asset: BTCUSDT
+bar_interval: 1h
+status: initial_validation_candidate
+
+features:
+  ma_short: 24
+  ma_long: 168
+  ma_long_term: 720
+  momentum_short: 24
+  momentum_long: 168
+  volatility_short: 24
+  volatility_long: 168
+  drawdown_short: 168
+  drawdown_long: 720
+  shock_z: 4.0
+
+cooldown:
+  cooldown_bars: 120
+  tested_values: [120, 144, 168]
+  bull_like_regimes: [weak_bull, bull, strong_bull]
+
+position_composer:
+  min_position: 0.0
+  max_position: 1.0
+  allowed_positions: [0.0, 0.25, 0.50, 0.75, 1.0]
+  rounding_mode: floor
+  allow_leverage: false
+
+execution:
+  fee_rate: 0.001
+  fee_rate_choices_for_validation: [0.0005, 0.001, 0.002]
+  slippage_rate: 0.0
+  minimum_position_step: 0.25
+  no_trade_zone: 0.25
+
+validation:
+  datasets:
+    - data/btcusdt_1h.csv
+    - data/btcusdt_1h_365d.csv
+    - data/btcusdt_1h_2y.csv
+    - data/btcusdt_1h_3y.csv
+    - data/btcusdt_1h_5y.csv
+  fee_rate_choices: [0.0005, 0.001, 0.002]
+  compare_against:
+    - v1.final
+    - v2.btc_final_candidate_A

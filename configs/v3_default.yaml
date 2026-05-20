@@ -1,0 +1,114 @@
+# Control Quant System v3 default configuration.
+#
+# This file is the human-readable baseline for the isolated v3 modules. The
+# current v3 CLI still accepts explicit command-line arguments; config-file
+# loading can be added in a later small step.
+
+version: v3.default
+status: research_baseline
+description: Long-term-primary, short-term-auxiliary, risk-controlled exposure controller.
+
+features:
+  # Defaults are suitable for 1h crypto research, but can be replaced per asset.
+  ma_short: 24
+  ma_long: 168
+  ma_long_term: 720
+  momentum_short: 24
+  momentum_long: 168
+  volatility_short: 24
+  volatility_long: 168
+  drawdown_short: 168
+  drawdown_long: 720
+  shock_z: 4.0
+
+market_estimator:
+  # v3 is rule-based. Particle filter is deferred to v4.
+  bull_trend_threshold: 0.03
+  strong_bull_trend_threshold: 0.08
+  bear_trend_threshold: -0.03
+  strong_bear_trend_threshold: -0.10
+  bull_momentum_threshold: 0.01
+  strong_bull_momentum_threshold: 0.04
+  bear_momentum_threshold: -0.01
+  strong_bear_momentum_threshold: -0.06
+  pullback_momentum_threshold: -0.005
+  pullback_drawdown_threshold: -0.01
+  recovery_momentum_threshold: 0.005
+  recovery_drawdown_threshold: -0.01
+  overheat_momentum_threshold: 0.04
+  overheat_ma_stretch: 0.03
+  breakdown_momentum_threshold: -0.035
+  breakdown_shock_threshold: 0.75
+  low_volatility_ratio: 0.70
+  high_volatility_ratio: 1.50
+  extreme_volatility_ratio: 2.50
+  caution_drawdown: -0.05
+  danger_drawdown: -0.12
+  severe_drawdown: -0.20
+  risk_off_drawdown: -0.15
+  risk_off_shock: 0.90
+  min_confidence: 0.0
+  max_confidence: 1.0
+
+long_term_controller:
+  mapping_name: conservative
+  base_positions:
+    strong_bull: 0.75
+    bull: 0.50
+    neutral: 0.25
+    bear: 0.00
+    strong_bear: 0.00
+
+short_term_controller:
+  adjustment_size: 0.25
+  allowed_adjustments: [-0.25, 0.0, 0.25]
+  high_confidence: 0.70
+  very_high_confidence: 0.85
+  allow_neutral_recovery_add: true
+  experimental_mode: false
+
+cooldown:
+  cooldown_bars: 120
+  bull_like_regimes: [weak_bull, bull, strong_bull]
+  tested_values: [120, 144, 168]
+
+risk_supervisor:
+  drawdown_caps:
+    drawdown_gt_minus_5pct: 1.00
+    drawdown_lte_minus_5pct: 0.75
+    drawdown_lte_minus_10pct: 0.50
+    drawdown_lte_minus_15pct: 0.25
+    drawdown_lte_minus_20pct: 0.00
+  drawdown_thresholds:
+    caution: -0.05
+    danger: -0.10
+    severe: -0.15
+    risk_off: -0.20
+  volatility_caps:
+    high: 0.75
+    extreme: 0.50
+  consecutive_loss_rules:
+    no_new_entry_at: 2
+    reduce_cap_at: 3
+    risk_off_at: 4
+    consecutive_loss_cap: 0.50
+
+position_composer:
+  min_position: 0.0
+  max_position: 1.0
+  allowed_positions: [0.0, 0.25, 0.50, 0.75, 1.0]
+  rounding_mode: floor
+  allow_leverage: false
+  leveraged_allowed_positions: [0.0, 0.25, 0.50, 0.75, 1.0, 1.25]
+
+execution:
+  fee_rate: 0.001
+  slippage_rate: 0.0
+  minimum_position_step: 0.25
+  no_trade_zone: 0.25
+  risk_off_position: 0.0
+
+validation:
+  fee_rate_choices: [0.0005, 0.001, 0.002]
+  annualization_factor_1h_crypto: 8760
+  separate_asset_validation: true

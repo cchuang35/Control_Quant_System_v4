@@ -1,0 +1,107 @@
+# Explicit v3.final_candidate configuration.
+#
+# This config freezes the selected v3 candidate assembled from the baseline,
+# rolling validation, and v3.2-v3.5 experiments. It is intentionally untuned:
+# no particle filter, no leverage, and no short-term-primary behavior.
+
+version: v3.final_candidate
+status: explicit_final_candidate_validation
+description: Long-term-primary, defensive short-term auxiliary, full-risk-supervised discrete exposure controller.
+
+features:
+  ma_short: 24
+  ma_long: 168
+  ma_long_term: 720
+  momentum_short: 24
+  momentum_long: 168
+  volatility_short: 24
+  volatility_long: 168
+  drawdown_short: 168
+  drawdown_long: 720
+  shock_z: 4.0
+
+market_estimator:
+  type: rule_based_v3
+  particle_filter: false
+
+long_term_controller:
+  mapping: conservative
+  base_positions:
+    strong_bull: 0.75
+    bull: 0.50
+    neutral: 0.25
+    bear: 0.00
+    strong_bear: 0.00
+
+short_term_controller:
+  enable_pullback_add: false
+  enable_recovery_add: false
+  enable_overheat_reduce: true
+  enable_breakdown_reduce: true
+  allow_neutral_recovery_add: false
+  experimental_mode: false
+  adjustment_size: 0.25
+  high_confidence: 0.70
+  very_high_confidence: 0.85
+
+cooldown:
+  enabled: true
+  cooldown_bars: 120
+  applies_to: bull_like_losing_trades
+  blocks_new_additions: true
+  force_exit: false
+  bull_like_regimes: [weak_bull, bull, strong_bull]
+
+risk_supervisor:
+  enabled: true
+  drawdown_caps: enabled
+  volatility_caps: enabled
+  market_risk_state_controls: enabled
+  consecutive_loss_rules: enabled
+  cost_guards: enabled
+  drawdown_thresholds:
+    caution: -0.05
+    danger: -0.10
+    severe: -0.15
+    risk_off: -0.20
+  volatility_cap_values:
+    high: 0.75
+    extreme: 0.50
+  consecutive_loss_rules_config:
+    no_new_entry_at: 2
+    reduce_cap_at: 3
+    risk_off_at: 4
+    consecutive_loss_cap: 0.50
+
+position_scheme:
+  allowed_positions: [0.0, 0.25, 0.50, 0.75, 1.0]
+  rounding: floor
+  max_position: 1.0
+  min_position: 0.0
+  leverage_enabled: false
+
+execution:
+  fee_aware: true
+  no_lookahead: true
+  no_trade_zone: 0.25
+  minimum_position_step: 0.25
+  slippage_rate: 0.0
+  fee_rates_to_validate: [0.0005, 0.0010, 0.0020]
+
+validation:
+  btc_datasets:
+    - data/btcusdt_1h.csv
+    - data/btcusdt_1h_365d.csv
+    - data/btcusdt_1h_2y.csv
+    - data/btcusdt_1h_3y.csv
+    - data/btcusdt_1h_5y.csv
+  eth_datasets:
+    - data/ethusdt_1h_365d.csv
+    - data/ethusdt_1h_2y.csv
+    - data/ethusdt_1h_3y.csv
+    - data/ethusdt_1h_5y.csv
+  compare_against:
+    - v1.final
+    - v2.btc_final_candidate_A
+    - buy_and_hold
+    - ma20_ma60
